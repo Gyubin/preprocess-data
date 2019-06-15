@@ -39,14 +39,12 @@ class ImageResizer(object):
             df = df.loc[~(cond1&cond2&cond3), :]
             self.image_file_names = list(df['filename'].values)
 
-
     @staticmethod
     def get_grayscale(img):
         """
         흑백 이미지로 바꾸는 함수
         """
         return np.dot(img, [0.299, 0.587, 0.114])
-
 
     def _resize_func(self, image_file_names):
         """
@@ -71,7 +69,6 @@ class ImageResizer(object):
                     print('{}\t{} done.'.format(idx, len(image_file_names)))
             except:
                 print('{} is broken.'.format(ifn))
-
 
     def resize_images(self):
         """
