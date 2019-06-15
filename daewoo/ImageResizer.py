@@ -1,6 +1,7 @@
 import os
 import argparse
 import numpy as np
+import pandas as pd
 from PIL import Image
 from multiprocessing import Process
 
@@ -19,12 +20,26 @@ class ImageResizer(object):
     """
 
     def __init__(self, args):
+        self.data_name = args.data_name
         self.source_image_path = args.source_image_path
         self.dest_image_path = args.dest_image_path
         self.crop_coords = args.crop_coords
         self.target_size = args.target_size
         self.process_num = args.process_num
         self.enable_grayscale = args.enable_grayscale
+        self.hyundai_label = args.hyundai_label
+
+        if self.data_name == 'weather':
+            self.image_file_names = sorted(os.listdir(self.source_image_path))
+        elif self.data_name == 'hyundai':
+            df = pd.read_csv(self.hyundai_label)
+            cond1 = df['T.Hs'] == 0  # swh
+            cond2 = df['T.Tp'] == 0  # swt
+            cond3 = df['T.Dp'] == 0  # dir
+            df = df.loc[~(cond1&cond2&cond3), :]
+            self.image_file_names = list(df['filename'].values)
+        elif self.data_name == 'lngc':
+            pass
 
 
     @staticmethod
@@ -64,18 +79,15 @@ class ImageResizer(object):
         """
         print('Start processing')
         os.makedirs(self.dest_image_path, exist_ok=True)
-
-        image_file_names = sorted(os.listdir(self.source_image_path))
-        alloc_num = len(image_file_names) // self.process_num
-
+        alloc_num = len(self.image_file_names) // self.process_num
         my_procs = []
         for i in range(self.process_num):
             start_ind = i * alloc_num
             end_ind = (i+1) * alloc_num
             if i != (self.process_num-1):
-                part_of_data = image_file_names[start_ind:end_ind]
+                part_of_data = self.image_file_names[start_ind:end_ind]
             else:
-                part_of_data = image_file_names[start_ind:]
+                part_of_data = self.image_file_names[start_ind:]
 
             p = Process(target=self._resize_func, args=(part_of_data,))
             p.start()
@@ -89,6 +101,8 @@ class ImageResizer(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resize images to N by N")
+    parser.add_argument("--data_name", type=str, required=True,
+                        help="weather or hyundai or lngc")
     parser.add_argument("--source_image_path", type=str, required=True,
                         help="Source image path")
     parser.add_argument("--dest_image_path", type=str, required=True,
@@ -100,6 +114,7 @@ if __name__ == "__main__":
     parser.add_argument("--process_num", type=int,
                         help="Number of process to use", default=16)
     parser.add_argument("--enable_grayscale", type=bool, default=False)
+    parser.add_argument("--hyundai_label", type=str, help="hyundai label")
 
     args = parser.parse_args()
     args.crop_coords = tuple(map(int, args.crop_coords.split(',')))
