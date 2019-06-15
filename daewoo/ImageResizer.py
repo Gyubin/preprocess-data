@@ -29,7 +29,7 @@ class ImageResizer(object):
         self.enable_grayscale = args.enable_grayscale
         self.hyundai_label = args.hyundai_label
 
-        if self.data_name == 'weather':
+        if self.data_name in ['weather', 'lngc']:
             self.image_file_names = sorted(os.listdir(self.source_image_path))
         elif self.data_name == 'hyundai':
             df = pd.read_csv(self.hyundai_label)
@@ -38,8 +38,6 @@ class ImageResizer(object):
             cond3 = df['T.Dp'] == 0  # dir
             df = df.loc[~(cond1&cond2&cond3), :]
             self.image_file_names = list(df['filename'].values)
-        elif self.data_name == 'lngc':
-            pass
 
 
     @staticmethod
@@ -57,19 +55,22 @@ class ImageResizer(object):
         Load -> Crop -> Resize -> Save 기능 순차적으로 수행
         """
         for idx, ifn in enumerate(image_file_names):
-            image = Image.open(os.path.join(self.source_image_path,
-                                            image_file_names[idx]))
-            image = image.crop(self.crop_coords)
-            image = image.resize((self.target_size, self.target_size))
-            image = np.array(image)
-            if self.enable_grayscale:
-                image = image.astype(np.float32)
-                image = ImageResizer.get_grayscale(image)
-            file_name = os.path.join(self.dest_image_path,
-                                     '{}.npy'.format(ifn.split('.')[0]))
-            np.save(file_name, image)
-            if idx % 1000 == 0:
-                print('{}\t{} done.'.format(idx, len(image_file_names)))
+            try:
+                image = Image.open(os.path.join(self.source_image_path,
+                                                image_file_names[idx]))
+                image = image.crop(self.crop_coords)
+                image = image.resize((self.target_size, self.target_size))
+                image = np.array(image)
+                if self.enable_grayscale:
+                    image = image.astype(np.float32)
+                    image = ImageResizer.get_grayscale(image)
+                file_name = os.path.join(self.dest_image_path,
+                                         '{}.npy'.format(ifn.split('.')[0]))
+                np.save(file_name, image)
+                if idx % 1000 == 0:
+                    print('{}\t{} done.'.format(idx, len(image_file_names)))
+            except:
+                print('{} is broken.'.format(ifn))
 
 
     def resize_images(self):
