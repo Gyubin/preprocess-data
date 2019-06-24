@@ -18,6 +18,7 @@ class ClipMaker(object):
     """
 
     def __init__(self, args):
+        self.data_name = args.data_name
         self.source_image_path = args.source_image_path
         self.dest_clip_path = args.dest_clip_path
         self.image_label_path = args.image_label_path
@@ -37,6 +38,7 @@ class ClipMaker(object):
 
     def save_clips(self, image_file_names, line, clip_num):
         """
+        Clip 데이터를 파일로 저장하는 함수
         """
         end_idx = 16 * (len(image_file_names) // 16)
         image_file_names = image_file_names[:end_idx]
@@ -65,54 +67,74 @@ class ClipMaker(object):
 
     def make_clips(self):
         """
+        Label과 연속된 시간 조건을 만족하는 image 뭉치를 만드는 함수
+        save_clips 함수를 호출하여 해당 image 뭉치를 clip으로 변환하여 저장
         """
         os.makedirs(self.dest_clip_path, exist_ok=True)
 
         with open(self.image_label_path, 'r') as f:
             match_data = f.readlines()[1:]
         with open(self.clip_label_path, 'w') as f:
-            f.write('clip,swh,swt,dir8,dir16,dir36,dir,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15\n')
+            if self.data_name == 'weather':
+                f.write('clip,swh,swt,dir8,dir16,dir36,dir,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15\n')
+            elif self.data_name == 'hyundai':
+                f.write('clip,swh,swt,dir\n')
 
-        prev_timestamp = datetime(2018, 11, 6, 11, 10, 22).timestamp()
         prev_swh = -999
         prev_swt = -999
-        prev_d8 = 'xxx'
-        prev_d16 = 'xxx'
-        prev_d36 = 'xxx'
         prev_dir = -999
+        if self.data_name == 'weather':
+            prev_timestamp = datetime(2018, 11, 6, 11, 10, 22).timestamp()
+            prev_d8 = 'xxx'
+            prev_d16 = 'xxx'
+            prev_d36 = 'xxx'
+        elif self.data_name == 'hyundai':
+            prev_timestamp = datetime(2018, 10, 13, 18, 0, 37).timestamp()
 
         clip_num = 0
         subgroup = []
         for idx_md, md in enumerate(match_data):
-            fn, cur_swh, cur_swt, cur_d8, cur_d16, cur_d36, cur_dir = md.strip().split(',')
+            if self.data_name == 'weather':
+                fn, cur_swh, cur_swt, cur_d8, cur_d16, cur_d36, cur_dir = md.strip().split(',')
+                cur_d36 = int(float(cur_d36))
+            elif self.data_name == 'hyundai':
+                fn, cur_swh, cur_swt, cur_dir = md[0], md[12], md[7], md[6]
+
             fn = fn.replace('jpg', 'npy')
+            if not os.path.exists(os.path.join(self.source_image_path, fn)):
+                continue
             cur_swh = float(cur_swh)
             cur_swt = float(cur_swt)
-            cur_d36 = int(float(cur_d36))
             cur_dir = float(cur_dir)
             cur_timestamp = ClipMaker.get_timestamp(fn)
 
-            if cur_timestamp-prev_timestamp < self.frame_interval\
-            and cur_swh == prev_swh:
+            if (cur_timestamp-prev_timestamp < self.frame_interval
+                    and cur_swh == prev_swh):
                 subgroup.append(fn)
             else:
                 if len(subgroup) >= self.frame_num:
-                    line = f'{prev_swh},{prev_swt},{prev_d8},{prev_d16},{prev_d36},{prev_dir}'
+                    if self.data_name == 'weather':
+                        line = f'{prev_swh},{prev_swt},{prev_d8},{prev_d16},{prev_d36},{prev_dir}'
+                    elif self.data_name == 'hyundai':
+                        line = '{},{},{}\n'.format(prev_swh, prev_swt, prev_dir)
                     clip_num = self.save_clips(subgroup, line, clip_num)
                 subgroup = [fn]
 
             prev_swh = cur_swh
             prev_swt = cur_swt
-            prev_d8 = cur_d8
-            prev_d16 = cur_d16
-            prev_d36 = cur_d36
             prev_dir = cur_dir
             prev_timestamp = cur_timestamp
+            if self.data_name == 'weather':
+                prev_d8 = cur_d8
+                prev_d16 = cur_d16
+                prev_d36 = cur_d36
         return
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Make clips")
+    parser.add_argument("--data_name", type=str, required=True,
+                        help="hyundai or weather or lngc")
     parser.add_argument("--source_image_path", type=str, required=True,
                         help="Source image path")
     parser.add_argument("--dest_clip_path", type=str, required=True,
