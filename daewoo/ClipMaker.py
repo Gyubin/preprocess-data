@@ -119,7 +119,7 @@ class ClipMaker(object):
                     if self.data_name == 'weather':
                         line = f'{prev_swh},{prev_swt},{prev_d8},{prev_d16},{prev_d36},{prev_dir}'
                     elif self.data_name in ['hyundai', 'lngc']:
-                        line = f'{prev_swh},{prev_swt},{prev_dir}')
+                        line = f'{prev_swh},{prev_swt},{prev_dir}'
                     clip_num = self.save_clips(subgroup, line, clip_num)
                 subgroup = [fn]
 
