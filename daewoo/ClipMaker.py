@@ -77,8 +77,8 @@ class ClipMaker(object):
         with open(self.clip_label_path, 'w') as f:
             if self.data_name == 'weather':
                 f.write('clip,swh,swt,dir8,dir16,dir36,dir,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15\n')
-            elif self.data_name == 'hyundai':
-                f.write('clip,swh,swt,dir\n')
+            elif self.data_name in ['hyundai', 'lngc']:
+                f.write('clip,swh,swt,dir,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15\n')
 
         prev_swh = -999
         prev_swt = -999
@@ -88,17 +88,20 @@ class ClipMaker(object):
             prev_d8 = 'xxx'
             prev_d16 = 'xxx'
             prev_d36 = 'xxx'
-        elif self.data_name == 'hyundai':
+        elif self.data_name in ['hyundai', 'lngc']:
             prev_timestamp = datetime(2018, 10, 13, 18, 0, 37).timestamp()
 
         clip_num = 0
         subgroup = []
         for idx_md, md in enumerate(match_data):
+            md = md.strip().split(',')
             if self.data_name == 'weather':
-                fn, cur_swh, cur_swt, cur_d8, cur_d16, cur_d36, cur_dir = md.strip().split(',')
+                fn, cur_swh, cur_swt, cur_d8, cur_d16, cur_d36, cur_dir = md
                 cur_d36 = int(float(cur_d36))
             elif self.data_name == 'hyundai':
                 fn, cur_swh, cur_swt, cur_dir = md[0], md[12], md[7], md[6]
+            elif self.data_name == 'lngc':
+                fn, cur_swh, cur_swt, cur_dir = md
 
             fn = fn.replace('jpg', 'npy')
             if not os.path.exists(os.path.join(self.source_image_path, fn)):
@@ -115,8 +118,8 @@ class ClipMaker(object):
                 if len(subgroup) >= self.frame_num:
                     if self.data_name == 'weather':
                         line = f'{prev_swh},{prev_swt},{prev_d8},{prev_d16},{prev_d36},{prev_dir}'
-                    elif self.data_name == 'hyundai':
-                        line = '{},{},{}\n'.format(prev_swh, prev_swt, prev_dir)
+                    elif self.data_name in ['hyundai', 'lngc']:
+                        line = f'{prev_swh},{prev_swt},{prev_dir}')
                     clip_num = self.save_clips(subgroup, line, clip_num)
                 subgroup = [fn]
 
