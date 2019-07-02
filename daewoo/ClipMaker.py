@@ -40,7 +40,7 @@ class ClipMaker(object):
         """
         Clip 데이터를 파일로 저장하는 함수
         """
-        end_idx = 16 * (len(image_file_names) // 16)
+        end_idx = self.frame_num * (len(image_file_names) // self.frame_num)
         image_file_names = image_file_names[:end_idx]
 
         f = open(self.clip_label_path, 'a')
@@ -48,13 +48,13 @@ class ClipMaker(object):
         for idx_ifn, ifn in enumerate(image_file_names):
             image = np.load(os.path.join(self.source_image_path, ifn))
             image = np.expand_dims(image, axis=0)
-            if idx_ifn % 16 == 0:
+            if idx_ifn % self.frame_num == 0:
                 clip = image
                 sub_ifn = [ifn.replace('npy', 'jpg')]
             else:
                 clip = np.vstack((clip, image))
                 sub_ifn.append(ifn.replace('npy', 'jpg'))
-                if idx_ifn % 16 == 15:
+                if idx_ifn % self.frame_num == self.frame_num-1:
                     clip_name = os.path.join(self.dest_clip_path,
                                              'clip_{}.npy'.format(clip_num))
                     np.save(clip_name, clip)
