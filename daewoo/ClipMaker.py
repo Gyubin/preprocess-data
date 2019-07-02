@@ -75,10 +75,11 @@ class ClipMaker(object):
         with open(self.image_label_path, 'r') as f:
             match_data = f.readlines()[1:]
         with open(self.clip_label_path, 'w') as f:
+            image_columns = ','.join([f'i{n}' for n in range(self.frame_num)])
             if self.data_name == 'weather':
-                f.write('clip,swh,swt,dir8,dir16,dir36,dir,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15\n')
+                f.write(f'clip,swh,swt,dir8,dir16,dir36,dir,{image_columns}\n')
             elif self.data_name in ['hyundai', 'lngc']:
-                f.write('clip,swh,swt,dir,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15\n')
+                f.write(f'clip,swh,swt,dir,{image_columns}\n')
 
         prev_swh = -999
         prev_swt = -999
