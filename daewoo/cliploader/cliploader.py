@@ -5,7 +5,8 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from utils import stack_images, make_label_custom, make_label_normal
+from utils import stack_images, make_label_custom,
+                  make_label_normal, get_timestamp
 
 
 __author__ = "Gyubin Son"
@@ -53,22 +54,11 @@ class ClipLoader(object):
         self._get_image_file_names_and_label()
         self._get_sub_image_file_names_of_clips()
 
-    @staticmethod
-    def get_grayscale(img):
+    def get_grayscale(self, img):
         """
         Transform rgb to gray scale
         """
         return np.dot(img, self.grayscale_coef)
-
-    @staticmethod
-    def get_timestamp(d):
-        """
-        Get timestamp based on filename.
-        ex) '20190424133050_13.jpg'
-        """
-        underpoint = float(d.split('.')[0].split('_')[1])
-        d_obj = datetime.strptime(d.split('_')[0], '%Y%m%d%H%M%S')
-        return d_obj.timestamp() + underpoint/100
 
     def _get_image_file_names_and_label(self):
         """
@@ -109,7 +99,7 @@ class ClipLoader(object):
             fn, cur_swh, cur_swt, cur_dir = self.image_label.iloc[i, :]
             if not os.path.exists(os.path.join(self.raw_image_path, fn)):
                 continue
-            cur_timestamp = ClipLoader.get_timestamp(fn)
+            cur_timestamp = get_timestamp(fn)
             if (cur_timestamp-prev_timestamp < self.frame_interval
                     and cur_swh == prev_swh):
                 subgroup.append(fn)
@@ -159,7 +149,7 @@ class ClipLoader(object):
             image = self._crop_and_resize(image)
             image = np.array(image)
             if self.use_grayscale:
-                image = ClipLoader.get_grayscale(image)
+                image = self.get_grayscale(image)
             images.append(image)
         clip = stack_images(images)
         return clip

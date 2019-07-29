@@ -13,6 +13,16 @@ def stack_images(images):
     return images[0]
 
 
+def get_timestamp(d):
+      """
+      Get timestamp based on filename.
+      ex) '20190424133050_13.jpg'
+      """
+      underpoint = float(d.split('.')[0].split('_')[1])
+      d_obj = datetime.strptime(d.split('_')[0], '%Y%m%d%H%M%S')
+      return d_obj.timestamp() + underpoint/100
+
+
 def make_label_custom(labels, window, n_class=360):
     label_dist = np.zeros((len(labels), n_class), dtype=float)
     label_digitized = label_digitize(labels, n_class)
