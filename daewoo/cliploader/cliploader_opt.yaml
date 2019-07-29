@@ -1,0 +1,60 @@
+weather:
+    raw_image_path:     "/hdd1/daewoo/weather/raw_images"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/weather/labels/image_label_weather.csv"
+    crop_coords:        !!python/tuple [350,250,1600,900]
+    start_timestamp:    !!python/tuple [2018, 11, 6, 11, 10, 22]
+
+hyundai:
+    raw_image_path:     "/hdd1/daewoo/hyundai/raw_images"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/hyundai/labels/image_label_hyundai.csv"
+    crop_coords:        !!python/tuple [650,450,1600,750]
+    start_timestamp:    !!python/tuple [2018, 10, 13, 18, 0, 37]
+
+lngc1:
+    raw_image_path:     "/hdd1/daewoo/lngc/raw_images/cam1"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/lngc/labels/image_label_cam1.csv"
+    crop_coords:        !!python/tuple [0,400,1000,600]
+    start_timestamp:    !!python/tuple [2018, 10, 13, 18, 0, 37]
+
+lngc2:
+    raw_image_path:     "/hdd1/daewoo/lngc/raw_images/cam2"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/lngc/labels/image_label_cam2.csv"
+    crop_coords:        !!python/tuple [0,200,1200,400]
+    start_timestamp:    !!python/tuple [2018, 10, 13, 18, 0, 37]
+
+lngc3:
+    raw_image_path:     "/hdd1/daewoo/lngc/raw_images/cam3"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/lngc/labels/image_label_cam3.csv"
+    crop_coords:        !!python/tuple [0,300,1600,550]
+    start_timestamp:    !!python/tuple [2018, 10, 13, 18, 0, 37]
+
+lngc4:
+    raw_image_path:     "/hdd1/daewoo/lngc/raw_images/cam4"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/lngc/labels/image_label_cam4.csv"
+    crop_coords:        !!python/tuple [0,400,500,600]
+    start_timestamp:    !!python/tuple [2018, 10, 13, 18, 0, 37]
+
+lngc5:
+    raw_image_path:     "/hdd1/daewoo/lngc/raw_images/cam5"
+    image_label_path:   "/home/gyubin/Documents/korea_dsba/daewoo/dataset/lngc/labels/image_label_cam5.csv"
+    crop_coords:        !!python/tuple [0,300,1000,500]
+    start_timestamp:    !!python/tuple [2018, 10, 13, 18, 0, 37]
+
+target_size:
+    width:              224
+    height:             224
+    frame_interval:     2.0
+
+grayscale:
+    use:                False
+    coef:               !!python/tuple [0.299, 0.587, 0.114]
+
+split_ratio:
+    train:              0.7
+    val:                0.15
+    test:               0.15
+
+dir_label_method:
+    type:               "normal"
+    custom_window:      5
+    normal_std:         1.0
