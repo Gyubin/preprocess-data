@@ -33,9 +33,9 @@ class ImageResizer(object):
             self.image_file_names = sorted(os.listdir(self.source_image_path))
         elif self.data_name == 'hyundai':
             df = pd.read_csv(self.hyundai_label)
-            cond1 = df['T.Hs'] == 0  # swh
-            cond2 = df['T.Tp'] == 0  # swt
-            cond3 = df['T.Dp'] == 0  # dir
+            cond1 = df['swh'] == 0
+            cond2 = df['swt'] == 0
+            cond3 = df['dir'] == 0
             df = df.loc[~(cond1&cond2&cond3), :]
             self.image_file_names = list(df['filename'].values)
 
