@@ -11,28 +11,28 @@ class LabelMaker(object):
     같은 시간 정보인 이미지들 각각에 파고, 파주기, 파향 레이블을 설정한다.
     """
     def __init__(self, opt):
+        self.data_name = opt.data_name
         self.source_dir = opt.source_dir
         self.image_label_path = opt.image_label_path
         self.rough_label_path = opt.rough_label_path
         self.label_range = opt.label_range
 
-        label_list = []
-        for fn in sorted(os.listdir(self.rough_label_path)):
-            tmp = pd.read_csv(os.path.join(self.rough_label_path, fn))
-            label_list.append(tmp)
-        self.rough_label = pd.concat(label_list, ignore_index=True)
-
-    @staticmethod
-    def get_datetime(d_str, dtype):
-        """
-        문자열에서 날짜 정보를 추출하는 함수
-        """
-        assert dtype in ['label', 'image_file_name']
-        if dtype == 'label':
-            d_obj = datetime.strptime(d_str, '%Y-%m%d-%H%M%S')
-        else:
-            d_obj = datetime.strptime(d_str[:-7], '%Y%m%d%H%M%S')
-        return d_obj
+        if self.data_name == 'weather':
+            self.rough_label = pd.read_csv(self.rough_label_path)
+            self.rough_label = self.rough_label.loc[:, ['DATE', 'SWH', 'SWT', 'DIR']]
+            self.rough_label.columns = ['date', 'swh', 'swt', 'dir']
+        elif self.data_name == 'hyundai':
+            self.rough_label = pd.read_csv(self.rough_label_path)
+            self.rough_label = self.rough_label.loc[:, ['Date&Time', ' T.Hs', ' T.Tp', ' T.Dp']]
+            self.rough_label.columns = ['date', 'swh', 'swt', 'dir']
+        elif self.data_name == 'lngc':
+            label_list = []
+            for fn in sorted(os.listdir(self.rough_label_path)):
+                tmp = pd.read_csv(os.path.join(self.rough_label_path, fn))
+                tmp = tmp.loc[:, ['TimeS', 'W.Hs', 'W.T01', 'W.Dir']]
+                tmp.columns = ['date', 'swh', 'swt', 'dir']
+                label_list.append(tmp)
+            self.rough_label = pd.concat(label_list, ignore_index=True)
 
     @staticmethod
     def check_time(image_d, label_d, label_range):
@@ -48,6 +48,22 @@ class LabelMaker(object):
             return -1
         elif diff > label_range:
             return 1
+
+    def get_datetime(self, d_str, dtype):
+        """
+        문자열에서 날짜 정보를 추출하는 함수
+        """
+        assert dtype in ['label', 'file']
+        if dtype == 'label':
+            if self.data_name == 'weather':
+                d_obj = datetime.strptime(d_str, '%Y_%m_%d_%H_%M')
+            elif self.data_name == 'hyundai':
+                d_obj = datetime.strptime(d_str, '%Y-%m-%d %H:%M:%S')
+            elif self.data_name == 'lngc':
+                d_obj = datetime.strptime(d_str, '%Y-%m%d-%H%M%S')
+        else:
+            d_obj = datetime.strptime(d_str[:-7], '%Y%m%d%H%M%S')
+        return d_obj
 
     def image_iterator(self):
         """
@@ -85,10 +101,10 @@ class LabelMaker(object):
             except:
                 break
 
-            image_d = LabelMaker.get_datetime(ifn, 'image_file_name')
-            label_d = LabelMaker.get_datetime(lb['TimeS'], 'label')
+            image_d = self.get_datetime(ifn, 'file')
+            label_d = self.get_datetime(lb['date'], 'label')
             if LabelMaker.check_time(image_d, label_d, self.label_range) == 0:
-                f.write(f'{ifn},{lb["W.Hs"]},{lb["W.T01"]},{lb["W.Dir"]}\n')
+                f.write(f'{ifn},{lb["swh"]},{lb["swt"]},{lb["dir"]}\n')
                 ifn_flag = True
                 label_flag = False
             elif LabelMaker.check_time(image_d, label_d, self.label_range) == -1:
@@ -104,11 +120,11 @@ class LabelMaker(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Label maker arguments")
+    parser.add_argument('--data_name', type=str, help="Data name")
     parser.add_argument('--source_dir', type=str, help='Source image path')
     parser.add_argument('--image_label_path', type=str, help='Output label path')
     parser.add_argument('--rough_label_path', type=str, help='Original rough label')
-    parser.add_argument('--label_range', type=float, help='Label time range',
-                        default=25.0)
+    parser.add_argument('--label_range', type=float, help='Label time range')
     opt = parser.parse_args()
 
     label_maker = LabelMaker(opt)
