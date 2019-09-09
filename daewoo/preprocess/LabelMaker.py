@@ -21,7 +21,7 @@ class LabelMaker(object):
             self.rough_label = pd.read_csv(self.rough_label_path)
             self.rough_label = self.rough_label.loc[:, ['DATE', 'SWH', 'SWT', 'DIR']]
             self.rough_label.columns = ['date', 'swh', 'swt', 'dir']
-        elif self.data_name == 'hyundai':
+        elif self.data_name in ['hyundai', 'vlcc']:
             self.rough_label = pd.read_csv(self.rough_label_path)
             self.rough_label = self.rough_label.loc[:, ['Date&Time', ' T.Hs', ' T.Tp', ' T.Dp']]
             self.rough_label.columns = ['date', 'swh', 'swt', 'dir']
@@ -61,6 +61,8 @@ class LabelMaker(object):
                 d_obj = datetime.strptime(d_str, '%Y-%m-%d %H:%M:%S')
             elif self.data_name == 'lngc':
                 d_obj = datetime.strptime(d_str, '%Y-%m%d-%H%M%S')
+            elif self.data_name == 'vlcc':
+                d_obj = datetime.strptime(d_str, '%Y.%m.%d %H:%M')
         else:
             d_obj = datetime.strptime(d_str[:-7], '%Y%m%d%H%M%S')
         return d_obj

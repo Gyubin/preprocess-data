@@ -81,10 +81,7 @@ class ClipMaker(object):
         prev_swh = -999
         prev_swt = -999
         prev_dir = -999
-        if self.data_name == 'weather':
-            prev_timestamp = datetime(2018, 11, 6, 11, 10, 22).timestamp()
-        elif self.data_name in ['hyundai', 'lngc']:
-            prev_timestamp = datetime(2018, 10, 13, 18, 0, 37).timestamp()
+        prev_timestamp = datetime(2000, 1, 1, 1, 1, 1).timestamp()
 
         clip_num = 0
         subgroup = []

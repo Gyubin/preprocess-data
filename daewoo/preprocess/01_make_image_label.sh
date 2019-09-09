@@ -21,3 +21,13 @@ do
                          --rough_label_path="./labels/rough/lngc_rough_labels"\
                          --label_range=25.0
 done
+
+# VLCC
+for CAM in "PORT-BD-B9" "PORT-NaviD-B7" "STBD-BD-B10" "STBD-NaviD-B4"
+do
+    python LabelMaker.py --data_name='vlcc'\
+                         --source_dir="/hdd1/daewoo/vlcc/raw_images/${CAM}"\
+                         --image_label_path="/home/gyubin/Documents/korea_dsba/daewoo/dataset/vlcc/labels/image_label_vlcc_${CAM}.csv"\
+                         --rough_label_path="/home/gyubin/Documents/korea_dsba/daewoo/dataset/vlcc/labels/WaveParam_2019_VLCC_custom.csv"\
+                         --label_range=30.0
+done

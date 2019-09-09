@@ -29,7 +29,7 @@ class ImageResizer(object):
         self.enable_grayscale = args.enable_grayscale
         self.hyundai_label = args.hyundai_label
 
-        if self.data_name in ['weather', 'lngc']:
+        if self.data_name in ['weather', 'lngc', 'vlcc']:
             self.image_file_names = sorted(os.listdir(self.source_image_path))
         elif self.data_name == 'hyundai':
             df = pd.read_csv(self.hyundai_label)
