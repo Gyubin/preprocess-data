@@ -14,7 +14,7 @@ __status__ = "Develop"
 class ClipMaker(object):
     """
     시간, Label 두 가지 기준으로 연속되는 이미지들을 가지고
-    Non overlapped 16장을 Video clip으로 만들어 저장
+    Non overlapped 4장을 Video clip으로 만들어 저장
     """
 
     def __init__(self, args):
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument("--clip_label_path", type=str, required=True,
                         help="Clip label path")
     parser.add_argument("--frame_num", type=int, help="Number of frames",
-                        default=16)
+                        default=4)
     parser.add_argument("--frame_interval", type=float,
                         help="Interval of frame", default=2.0)
 

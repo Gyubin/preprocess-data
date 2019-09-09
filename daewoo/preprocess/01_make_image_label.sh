@@ -16,7 +16,7 @@ python LabelMaker.py --data_name="hyundai"\
 for CAMERA_NUM in 1 2 3 4 5
 do
     python LabelMaker.py --data_name='lngc'\
-                         --source_dir="/hdd1/daewoo/lngc/resized/cam${CAMERA_NUM}"\
+                         --source_dir="/hdd1/daewoo/lngc/raw_images/cam${CAMERA_NUM}"\
                          --image_label_path="./labels/image_label_lngc_cam${CAMERA_NUM}.csv"\
                          --rough_label_path="./labels/rough/lngc_rough_labels"\
                          --label_range=25.0
